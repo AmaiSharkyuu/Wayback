@@ -10,19 +10,6 @@ html, body {
     width: 100%;
     height: 100%;
     background: black;
-    color: white;
-}
-
-/* La page reste entièrement noire */
-body {
-    overflow: hidden;
-}
-
-/* Modification de la banderole Wayback */
-#wm-ipp {
-    top: auto !important;
-    bottom: 0 !important;
-    filter: invert(1) !important;
 }
 </style>
 </head>
@@ -30,30 +17,41 @@ body {
 <body>
 
 <script>
-function modifyWayback() {
-    const bar = document.getElementById("wm-ipp");
+(function() {
+    function hackWaybackBar() {
+        const bar = document.getElementById("wm-ipp");
+        const base = document.getElementById("wm-ipp-base");
 
-    if (bar) {
-        // Déplacement en bas
-        bar.style.setProperty("top", "auto", "important");
-        bar.style.setProperty("bottom", "0", "important");
+        if (base) {
+            base.style.setProperty("display", "block", "important");
+        }
 
-        // Inversion des couleurs
-        bar.style.setProperty("filter", "invert(1)", "important");
+        if (bar) {
+            bar.style.setProperty("position", "fixed", "important");
+            bar.style.setProperty("top", "auto", "important");
+            bar.style.setProperty("bottom", "0", "important");
+            bar.style.setProperty("left", "0", "important");
+            bar.style.setProperty("right", "0", "important");
+
+            // Inversion des couleurs uniquement de la banderole
+            bar.style.setProperty("filter", "invert(1)", "important");
+        }
     }
-}
 
-// La Wayback peut injecter sa barre après le chargement,
-// donc on surveille l'apparition
-const observer = new MutationObserver(modifyWayback);
+    // Attendre que la Wayback ait fini son injection
+    const observer = new MutationObserver(hackWaybackBar);
 
-observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-});
+    observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+    });
 
-modifyWayback();
+    // Plusieurs essais pour couvrir les chargements tardifs
+    hackWaybackBar();
+    setTimeout(hackWaybackBar, 500);
+    setTimeout(hackWaybackBar, 1500);
+})();
 </script>
 
 </body>
-</html> 
+</html>
